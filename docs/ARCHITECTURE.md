@@ -622,3 +622,4 @@ Doomsday runtime (150) is a placeholder.
 9. No delete or cinema-update endpoints — not asked for in the brief.
 10. Avengers: Doomsday runtime in the seed data (150 min) is a placeholder.
 11. The brief's sample data is preloaded (seeded) so every example can be checked right away.
+12. Rare DRF errors not listed in §7 (e.g. 415 for a non-JSON body) keep DRF's status code and use the same error shape, with DRF's code in upper case (e.g. `UNSUPPORTED_MEDIA_TYPE`).

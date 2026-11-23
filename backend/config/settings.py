@@ -95,6 +95,7 @@ if DEBUG:
 
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": RENDERER_CLASSES,
+    "EXCEPTION_HANDLER": "config.exceptions.api_exception_handler",
 }
 
 LOGGING = {

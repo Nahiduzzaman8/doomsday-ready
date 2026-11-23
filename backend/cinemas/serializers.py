@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from cinemas.models import Cinema
-from movies.serializers import StrictIntegerField
+from config.fields import StrictIntegerField
 
 
 class CinemaInputSerializer(serializers.Serializer):
@@ -16,6 +16,19 @@ class CinemaInputSerializer(serializers.Serializer):
         if len(set(value)) != len(value):
             raise serializers.ValidationError("Bundle sizes must all be different.")
         return sorted(value)
+
+
+class GroupSizeField(serializers.IntegerField):
+    """Accepts only whole-number strings like "11". DRF alone would accept "11.0" or " 11 "."""
+
+    def to_internal_value(self, data):
+        if not (data.isascii() and data.isdigit()):
+            self.fail("invalid")
+        return super().to_internal_value(data)
+
+
+class BookingQuerySerializer(serializers.Serializer):
+    groupSize = GroupSizeField(min_value=1, max_value=10_000)
 
 
 class CinemaSerializer(serializers.ModelSerializer):

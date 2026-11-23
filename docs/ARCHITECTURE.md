@@ -27,6 +27,7 @@ doomsday-ready/
 │   │   ├── settings.py
 │   │   ├── urls.py
 │   │   ├── exceptions.py
+│   │   ├── fields.py           StrictIntegerField, StrictBooleanField (shared by both apps)
 │   │   ├── views.py
 │   │   ├── wsgi.py
 │   │   └── asgi.py
@@ -623,3 +624,4 @@ Doomsday runtime (150) is a placeholder.
 10. Avengers: Doomsday runtime in the seed data (150 min) is a placeholder.
 11. The brief's sample data is preloaded (seeded) so every example can be checked right away.
 12. Rare DRF errors not listed in §7 (e.g. 415 for a non-JSON body) keep DRF's status code and use the same error shape, with DRF's code in upper case (e.g. `UNSUPPORTED_MEDIA_TYPE`).
+13. On the booking endpoint, an unknown cinema returns 404 before `groupSize` is checked, so a bad `groupSize` for a missing cinema is still 404.

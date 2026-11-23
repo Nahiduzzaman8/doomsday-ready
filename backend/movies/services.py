@@ -3,7 +3,7 @@ from django.db.models import QuerySet
 from django.shortcuts import get_object_or_404
 
 from config.exceptions import AlreadyExists, CircularDependency
-from movies.graph import creates_cycle
+from movies.graph import creates_cycle, rewatch_order
 from movies.models import Movie
 
 TITLE_CONSTRAINT = "unique_movie_title_ci"
@@ -55,6 +55,20 @@ def update_movie(movie: Movie, validated_data: dict) -> Movie:
         _raise_if_title_taken(error)
         raise
     return movie
+
+
+def get_rewatch_plan(movie: Movie) -> dict:
+    ids = rewatch_order(load_graph(), movie.id)
+    movies_by_id = list_movies().in_bulk(ids)
+    movies = [movies_by_id[movie_id] for movie_id in ids]
+    unwatched = [entry for entry in movies if not entry.watched]
+    return {
+        "target": {"id": movie.id, "title": movie.title},
+        "movies": movies,
+        "total_count": len(movies),
+        "watched_count": len(movies) - len(unwatched),
+        "unwatched_runtime_minutes": sum(entry.runtime_minutes for entry in unwatched),
+    }
 
 
 def _apply_prerequisites(movie: Movie, prerequisite_ids: list[int]) -> None:

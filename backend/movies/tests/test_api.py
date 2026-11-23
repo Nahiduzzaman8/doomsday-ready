@@ -21,6 +21,15 @@ TITLE_TAKEN = {
     }
 }
 NOT_FOUND = {"error": {"code": "NOT_FOUND", "message": "Not found.", "details": {}}}
+DOOMSDAY_ORDER = [
+    "Iron Man",
+    "Captain America: The First Avenger",
+    "The Avengers",
+    "Captain America: Civil War",
+    "Thor: Ragnarok",
+    "Avengers: Infinity War",
+    "Avengers: Endgame",
+]
 
 
 def make_movie(title: str, release_year: int, runtime_minutes: int = 120, **extra) -> Movie:
@@ -420,3 +429,94 @@ class LoadGraphTests(TestCase):
 
     def test_empty_database_gives_empty_graph(self):
         self.assertEqual(load_graph(), {})
+
+
+class RewatchOrderTests(APITestCase):
+    def setUp(self):
+        iron_man = make_movie("Iron Man", 2008, 126)
+        first_avenger = make_movie("Captain America: The First Avenger", 2011, 124)
+        avengers = make_movie("The Avengers", 2012, 143)
+        civil_war = make_movie("Captain America: Civil War", 2016, 147)
+        ragnarok = make_movie("Thor: Ragnarok", 2017, 130)
+        infinity_war = make_movie("Avengers: Infinity War", 2018, 149)
+        endgame = make_movie("Avengers: Endgame", 2019, 181)
+        doomsday = make_movie("Avengers: Doomsday", 2026, 150)
+
+        avengers.prerequisites.set([iron_man, first_avenger])
+        civil_war.prerequisites.set([avengers])
+        infinity_war.prerequisites.set([civil_war, ragnarok])
+        endgame.prerequisites.set([infinity_war])
+        doomsday.prerequisites.set([endgame])
+        self.movies = {movie.title: movie for movie in Movie.objects.all()}
+
+    def get_plan(self, title: str) -> dict:
+        response = self.client.get(f"/api/movies/{self.movies[title].id}/rewatch-order")
+        self.assertEqual(response.status_code, 200)
+        return response.json()
+
+    def titles(self, plan: dict) -> list[str]:
+        return [movie["title"] for movie in plan["movies"]]
+
+    def test_brief_example_doomsday(self):
+        plan = self.get_plan("Avengers: Doomsday")
+
+        self.assertEqual(self.titles(plan), DOOMSDAY_ORDER)
+        position = {movie["id"]: index for index, movie in enumerate(plan["movies"])}
+        for movie in plan["movies"]:
+            for prerequisite_id in movie["prerequisites"]:
+                self.assertLess(position[prerequisite_id], position[movie["id"]])
+
+    def test_brief_example_civil_war(self):
+        titles = self.titles(self.get_plan("Captain America: Civil War"))
+
+        self.assertCountEqual(titles[:2], ["Iron Man", "Captain America: The First Avenger"])
+        self.assertEqual(titles[2:], ["The Avengers"])
+
+    def test_brief_example_ragnarok_has_nothing_to_watch(self):
+        ragnarok = self.movies["Thor: Ragnarok"]
+
+        self.assertEqual(
+            self.get_plan("Thor: Ragnarok"),
+            {
+                "target": {"id": ragnarok.id, "title": "Thor: Ragnarok"},
+                "movies": [],
+                "total_count": 0,
+                "watched_count": 0,
+                "unwatched_runtime_minutes": 0,
+            },
+        )
+
+    def test_target_is_never_in_its_own_list(self):
+        for title, target in self.movies.items():
+            with self.subTest(title=title):
+                plan = self.get_plan(title)
+                self.assertEqual(plan["target"], {"id": target.id, "title": title})
+                self.assertNotIn(target.id, [movie["id"] for movie in plan["movies"]])
+
+    def test_watched_movies_are_counted_and_left_out_of_runtime(self):
+        watched = DOOMSDAY_ORDER[:4]
+        Movie.objects.filter(title__in=watched).update(watched=True)
+
+        plan = self.get_plan("Avengers: Doomsday")
+
+        self.assertEqual(plan["total_count"], 7)
+        self.assertEqual(plan["watched_count"], 4)
+        self.assertEqual(plan["unwatched_runtime_minutes"], 460)
+        self.assertEqual(self.titles(plan), DOOMSDAY_ORDER)
+        self.assertEqual(
+            plan["movies"][0],
+            {
+                "id": self.movies["Iron Man"].id,
+                "title": "Iron Man",
+                "release_year": 2008,
+                "runtime_minutes": 126,
+                "watched": True,
+                "prerequisites": [],
+            },
+        )
+
+    def test_unknown_id_is_not_found(self):
+        response = self.client.get("/api/movies/999999/rewatch-order")
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json(), NOT_FOUND)

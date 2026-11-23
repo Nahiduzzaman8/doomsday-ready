@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from movies import services
-from movies.serializers import MovieInputSerializer, MovieSerializer
+from movies.serializers import MovieInputSerializer, MovieSerializer, RewatchPlanSerializer
 
 
 class MovieListView(APIView):
@@ -29,3 +29,10 @@ class MovieDetailView(APIView):
         serializer.is_valid(raise_exception=True)
         movie = services.update_movie(movie, serializer.validated_data)
         return Response(MovieSerializer(movie).data)
+
+
+class RewatchOrderView(APIView):
+    def get(self, request, movie_id):
+        movie = services.get_movie(movie_id)
+        plan = services.get_rewatch_plan(movie)
+        return Response(RewatchPlanSerializer(plan).data)

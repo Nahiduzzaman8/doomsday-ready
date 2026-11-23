@@ -45,3 +45,11 @@ class MovieSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
         fields = ["id", "title", "release_year", "runtime_minutes", "watched", "prerequisites"]
+
+
+class RewatchPlanSerializer(serializers.Serializer):
+    target = serializers.DictField()
+    movies = MovieSerializer(many=True)
+    total_count = serializers.IntegerField()
+    watched_count = serializers.IntegerField()
+    unwatched_runtime_minutes = serializers.IntegerField()

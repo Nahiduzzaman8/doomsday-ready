@@ -1,4 +1,5 @@
 import { useState } from "react";
+import BookingView from "./views/BookingView.jsx";
 import MoviesView from "./views/MoviesView.jsx";
 import RewatchPlanView from "./views/RewatchPlanView.jsx";
 
@@ -27,9 +28,7 @@ export default function App() {
       <main>
         {activeTab === "Movies" && <MoviesView />}
         {activeTab === "Rewatch Plan" && <RewatchPlanView />}
-        {activeTab === "Booking" && (
-          <p className="placeholder">The {activeTab} view is coming soon.</p>
-        )}
+        {activeTab === "Booking" && <BookingView />}
       </main>
     </div>
   );

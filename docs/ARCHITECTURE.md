@@ -627,3 +627,5 @@ Doomsday runtime (150) is a placeholder.
 13. On the booking endpoint, an unknown cinema returns 404 before `groupSize` is checked, so a bad `groupSize` for a missing cinema is still 404.
 14. Rewatch Plan: when every movie is watched, the progress bar and list stay visible and "All caught up — you're ready!" is shown above the list.
 15. In `request()`, a 502/503/504 response without a JSON body (a proxy whose backend is down) is treated as a network failure: "Cannot reach the server.".
+16. Booking view: the first cinema in the list (ordered by name) is selected when the view opens; the quote is fetched only when "Get quote" is clicked.
+17. Booking view, add cinema: empty parts in the bundle sizes text are ignored, so "5, 2," and "5,,2" both become `[5, 2]`.

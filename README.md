@@ -295,7 +295,7 @@ Always taking the biggest bundle (greedy) does not work: for sizes `[6, 9, 20]` 
 - **README.** Claude Code drafted this README from the docs; I checked every command and edited it.
 
 <!-- In my own words: -->
-
+I used Claude AI and Claude Cide as a pair programmer. I planned the design step by step and approved each decision before any code was written. I ran and checked every task myself, in the tests and in the browser. AI was not always right: during review I caught a wrong test count, the cinemas app importing code from the movies app, and wrong advice that re-running seed would reset the data.
 ---
 
 ## 8. Testing

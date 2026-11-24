@@ -1,4 +1,5 @@
 import { useState } from "react";
+import MoviesView from "./views/MoviesView.jsx";
 
 const TABS = ["Movies", "Rewatch Plan", "Booking"];
 
@@ -23,7 +24,11 @@ export default function App() {
         </nav>
       </header>
       <main>
-        <p className="placeholder">The {activeTab} view is coming soon.</p>
+        {activeTab === "Movies" ? (
+          <MoviesView />
+        ) : (
+          <p className="placeholder">The {activeTab} view is coming soon.</p>
+        )}
       </main>
     </div>
   );

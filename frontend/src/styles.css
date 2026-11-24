@@ -134,6 +134,45 @@ th {
   background: var(--surface);
 }
 
+.muted {
+  color: var(--muted);
+}
+
+.form-title {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.full-width {
+  flex-basis: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.checkbox-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+.edit-row td {
+  background: var(--surface);
+}
+
+.edit-title {
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
 .error {
   padding: 10px 12px;
   margin: 0 0 16px;

@@ -625,3 +625,5 @@ Doomsday runtime (150) is a placeholder.
 11. The brief's sample data is preloaded (seeded) so every example can be checked right away.
 12. Rare DRF errors not listed in §7 (e.g. 415 for a non-JSON body) keep DRF's status code and use the same error shape, with DRF's code in upper case (e.g. `UNSUPPORTED_MEDIA_TYPE`).
 13. On the booking endpoint, an unknown cinema returns 404 before `groupSize` is checked, so a bad `groupSize` for a missing cinema is still 404.
+14. Rewatch Plan: when every movie is watched, the progress bar and list stay visible and "All caught up — you're ready!" is shown above the list.
+15. In `request()`, a 502/503/504 response without a JSON body (a proxy whose backend is down) is treated as a network failure: "Cannot reach the server.".

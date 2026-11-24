@@ -1,3 +1,8 @@
+const UNREACHABLE_MESSAGE = "Cannot reach the server.";
+
+// A proxy (Vite in dev, for example) answers with one of these when the backend is down.
+const GATEWAY_STATUSES = [502, 503, 504];
+
 async function request(path, options = {}) {
   let response;
   try {
@@ -6,10 +11,13 @@ async function request(path, options = {}) {
       headers: { Accept: "application/json", ...options.headers },
     });
   } catch {
-    throw new Error("Cannot reach the server.");
+    throw new Error(UNREACHABLE_MESSAGE);
   }
 
   const body = await response.json().catch(() => null);
+  if (body === null && GATEWAY_STATUSES.includes(response.status)) {
+    throw new Error(UNREACHABLE_MESSAGE);
+  }
   if (!response.ok) {
     const apiError = body?.error ?? {};
     const error = new Error(apiError.message ?? "Something went wrong.");

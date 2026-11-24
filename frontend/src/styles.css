@@ -181,3 +181,33 @@ th {
   background: var(--error-bg);
   color: var(--accent);
 }
+
+.target-picker {
+  margin-bottom: 16px;
+}
+
+.plan-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-bottom: 16px;
+}
+
+.plan-summary progress {
+  flex: 1 1 160px;
+  max-width: 320px;
+}
+
+.plan-list {
+  padding-left: 24px;
+}
+
+.plan-list li {
+  padding: 4px 0;
+}
+
+.plan-list li.watched {
+  color: var(--muted);
+  text-decoration: line-through;
+}

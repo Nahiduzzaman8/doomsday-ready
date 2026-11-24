@@ -526,8 +526,8 @@ Cinema: [ Cinema Bravo (bundles: 2, 5) ▼ ]   Group size: [ 11 ]   [ Get quote 
 | Service | Source | Ports | Details |
 |---|---|---|---|
 | `db` | `postgres:16-alpine` | `5432:5432` | volume `pgdata`; healthcheck `pg_isready -U doomsday` |
-| `backend` | build `./backend` | `8000:8000` | `depends_on: db: condition: service_healthy`; env with defaults |
-| `frontend` | build `./frontend` | `3000:80` | `depends_on: backend` |
+| `backend` | build `./backend` | `8000:8000` | `depends_on: db: condition: service_healthy`; env with defaults; healthcheck `GET /api/movies` (every 5s, 20 retries) |
+| `frontend` | build `./frontend` | `3000:80` | `depends_on: backend: condition: service_healthy` |
 
 All environment values have defaults inside the compose file (`${VAR:-default}`), so it runs with
 no `.env` file.
@@ -561,7 +561,7 @@ exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
 - `location / { try_files $uri /index.html; }`
 
 ### `.dockerignore`
-- backend: `__pycache__`, `.venv`, `*.pyc`, `.env`
+- backend: `**/__pycache__`, `.venv`, `**/*.pyc`, `.env` (`**/` so nested folders are matched too)
 - frontend: `node_modules`, `dist`, `.env`
 
 ---
@@ -629,3 +629,5 @@ Doomsday runtime (150) is a placeholder.
 15. In `request()`, a 502/503/504 response without a JSON body (a proxy whose backend is down) is treated as a network failure: "Cannot reach the server.".
 16. Booking view: the first cinema in the list (ordered by name) is selected when the view opens; the quote is fetched only when "Get quote" is clicked.
 17. Booking view, add cinema: empty parts in the bundle sizes text are ignored, so "5, 2," and "5,,2" both become `[5, 2]`.
+18. In Docker, `POSTGRES_HOST` and `POSTGRES_PORT` are fixed to `db` and `5432` in the compose file (not `${VAR:-default}`), so a local `.env` with `POSTGRES_HOST=localhost` cannot point the backend container at itself.
+19. The backend healthcheck calls `GET /api/movies` with Python's `urllib` (no curl in the slim image). The frontend waits for it, so nginx starts only after migrate, seed and gunicorn are ready and the first `/api` request does not get a 502. 20 retries × 5s gives migrate + seed up to about 100 seconds.
